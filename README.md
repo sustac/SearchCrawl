@@ -4,7 +4,7 @@ The techcrawl repository contains a scrapy webcrawler, a program to convert webs
 
 Has only been tested on Ubuntu 18.04
 
-To start, just clone the repository and cd into the techcrawl directory where you have stored it.
+To start, just clone the repository and cd into the techcrawl/techcrawl/ directory where all of the files are located.
 Then chmod 755 prereq.sh and ./prereq.sh.
 Prereq.sh contains terminal commands to install the needed dependencies for the project to work.
 
