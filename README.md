@@ -1,4 +1,4 @@
-techcrawl
+SearchCrawl
 
 The techcrawl repository contains a scrapy webcrawler, a program to convert website links into a graph and view various graph metrics and a simple in-memory inverted index to search for terms.
 
