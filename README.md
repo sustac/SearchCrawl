@@ -1,8 +1,10 @@
+techcrawl
+
 The techcrawl repository contains a scrapy webcrawler, a program to convert website links into a graph and view various graph metrics and a simple in-memory inverted index to search for terms.
 
 Has only been tested on Ubuntu 18.04
 
-To start just clone the repository and cd into the techcrawl directory where you have stored it.
+To start, just clone the repository and cd into the techcrawl directory where you have stored it.
 Then chmod 755 prereq.sh and ./prereq.sh.
 Prereq.sh contains terminal commands to install the needed dependencies for the project to work.
 
