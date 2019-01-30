@@ -19,3 +19,10 @@ Once done you will be prompted to use the graph program or the index program. Th
 produce various graph metrics of the websites and links plus draw a simple visualization of the graph.
 The index program will let you search for whatever terms you like and will return all results. You can
 also get the frequency of whatever term you supply. 
+
+
+Some examples websites to try to see the difference in metrics:
+
+https://www.theguardian.com/us/technology
+https://www.slashdot.org
+https://www.linuxinsider.com
