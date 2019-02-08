@@ -1,6 +1,7 @@
 SearchCrawl
 
-The techcrawl repository contains a scrapy webcrawler, a program to convert website links into a graph and view various graph metrics and a simple in-memory inverted index to search for terms.
+The techcrawl repository contains a scrapy webcrawler, a program to convert website links into a graph and view various graph metrics and a mongoDB database and collection to store webcrawler data. This collection allows the utilization
+of search queries of the data. This can be used as a simple search engine. 
 
 Has only been tested on Ubuntu 18.04
 
@@ -11,14 +12,15 @@ Prereq.sh contains terminal commands to install the needed dependencies for the 
 Once everything has been installed, simply type ./run.sh.
 
 This will initiate the crawler once you have specified an output file and the url to start from.
-The crawler will grab links from the first 15 pages it encounters, and then crawl all of them for 
-title of the page, base_url and of course links. I have set it to 15 just to limit the run time of
-the crawler.
+The crawler will grab links from the pages it encounters, and then crawl all of them for 
+title of the page, base_url, body and of course links.
 
 Once done you will be prompted to use the graph program or the index program. The graph program can
 produce various graph metrics of the websites and links plus draw a simple visualization of the graph.
-The index program will let you search for whatever terms you like and will return all results. You can
-also get the frequency of whatever term you supply. 
+The index program will let you search the crawled data for the terms you supply. It will generate a score
+for each page and then return the title and website url.
+
+You dont have to use run.sh. You can run the programs on the command line.  
 
 
 Some examples websites to try to see the difference in metrics:
