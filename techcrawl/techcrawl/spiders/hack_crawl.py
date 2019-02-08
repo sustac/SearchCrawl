@@ -1,46 +1,78 @@
 # -*- coding: utf-8 -*-
 import scrapy
+import csv
+import re
 from urllib.parse import urlparse
+from techcrawl.items import TechcrawlItem
 from scrapy.linkextractors import LinkExtractor
-from scrapy.spiders import CrawlSpider, Rule
+#from scrapy.spiders import CrawlSpider, Rule
 
 x = 0
+file_csv = ''
+depth = 0
 
 class HackCrawlSpider(scrapy.Spider):
     global stop
+    global file_csv
+    global depth
     name = 'hack_crawl'
 
+    #### Enter seed page and the output file to write links to, needed for makegraph and to calculate pagerank. Enter crawl depth.
     print("\n")
     url = input("Enter starting page(including https:// or http://): ")
+    print("\n")
+    file_csv = input("Enter csv output file name: ")
+    print("\n")
+    depth = input("Enter crawl depth(1-20): ")
+    depth = int(depth)
     print("\n")
     
     start_urls = [url]
 
     def parse(self, response):
         global x
+        global file_csv
         links = []
-        
+        webdata = []
+        url_list = []
+
         if response.xpath('//a/@href').extract() is not None:
             for link in response.xpath('//a/@href').extract():
                 a = urlparse(link)
                 link = "://".join([a.scheme, a.netloc])
                 b = urlparse(response.url)
-                b = "://".join([b.scheme, b.netloc])
-                base_url = response.xpath('//title/text()').extract_first()
+                url = "://".join([b.scheme, b.netloc])
+                url = re.sub('https://', '', url)
+                url = re.sub('http://', '', url)
+                url = re.sub('www.', '', url)
                 if(link.startswith('https://') or link.startswith('http://')):
-                    if (x < 15):
+                    if (x < depth):
                         if(link not in links):
                             links.append(link)
-                    yield {
-                            'title' : base_url,
-                            'url' : b,
-                            'link': link
-                        }
+                    if(response.url not in url_list):
+                        url_list.append(response.url)
+                        item = TechcrawlItem()
+                        item['title'] = response.xpath('//title/text()').extract_first()
+                        item['url'] = response.url
+                        item['body'] = response.xpath('//p/text()').extract()
+                        item['domain'] = url
+                        item['pagerank'] = 0.0
+                        yield item
+
+                    webdata.append(url)
+                    webdata.append(link)
+
+                    with open(file_csv, 'a') as outfile:
+                        wr = csv.writer(outfile, quoting=csv.QUOTE_ALL)
+                        wr.writerow(webdata)
+
+                    webdata = []
+                                
             x += 1
         
         else:
             pass
-        
+                  
         for y in range(len(links)):
             next_page = links[y]
             if next_page is not None:
