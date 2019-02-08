@@ -14,6 +14,12 @@ BOT_NAME = 'techcrawl'
 SPIDER_MODULES = ['techcrawl.spiders']
 NEWSPIDER_MODULE = 'techcrawl.spiders'
 
+MONGODB_SERVER = 'localhost'
+MONGODB_PORT = 27017
+MONGODB_DB = 'index'
+MONGODB_COLLECTION = 'pages'
+
+ITEM_PIPELINES = {'techcrawl.pipelines.TechcrawlPipeline': 300,}
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'techcrawl (+http://www.yourdomain.com)'

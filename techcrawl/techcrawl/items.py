@@ -5,10 +5,12 @@
 # See documentation in:
 # https://doc.scrapy.org/en/latest/topics/items.html
 
-import scrapy
+from scrapy.item import Item, Field
 
 
-class TechcrawlItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class TechcrawlItem(Item):
+    title = Field()
+    url = Field()
+    domain = Field()
+    pagerank = Field()
+    body = Field()
