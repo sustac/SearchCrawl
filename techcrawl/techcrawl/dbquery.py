@@ -1,21 +1,39 @@
 import csv
 import re
+import os
 import pymongo
 import networkx as nx
 from copy import deepcopy
 from pymongo import MongoClient, ReturnDocument
 
 
-##function to search the indexed fields, generate a score(word frequency) and then display in descending score order. I split the result to just show the title and url.
+#function to search the indexed fields, generate a score(word frequency) and then display in descending score order. 
+#I split the result to just show the title and url.
 def text_search(collection,text):
-    query = collection.find({"$text": {"$search": text}},{'score': {'$meta': 'textScore'}})
+
+    query1 = collection.find({"$text": {"$search": text}},{'score': {'$meta': 'textScore'}}).limit(15)    
+    for item in query1:
+        if item['score_added'] is not 1:
+            score = item['score'] + item['pagerank']
+            collection.update_one({
+                '_id': item['_id']
+            },{
+                '$set':{ 'score' : score, 'score_added' : 1}
+            })
+        else:
+            pass
+  
+    
+    query = collection.find({"$text": {"$search": text}},{'score': {'$meta': 'textScore'}}).limit(15)
     query.sort([('score', {'$meta' : 'textScore'})])
-    for item in query:
+
+    for item in query:         
         item = str(item)
-        item = item.split(', \'body\':')
-        a = item[0]
-        a = a.split('), ')[1]
+        item = item.split(', \'domain\':')
+        a = item[1]
         print("{}" .format(a))
+
+
 
 
 #function to create indexed fields to enable text search of them, also insert a dummy document to be able to have an index(cant index nothing).
@@ -29,7 +47,7 @@ def create_index(collection):
 def remove_duplicates(collection):
     cursor = collection.aggregate(
             [
-                {'$group': {'_id': '$url', 'unique_ids': {'$addToSet': '$_id'}, 'count': {'$sum': 1}}},
+                {'$group': {'_id': '$domain', 'unique_ids': {'$addToSet': '$_id'}, 'count': {'$sum': 1}}},
                 {'$match': {'count': { '$gte': 2 }}}
             ]
     )
@@ -43,7 +61,7 @@ def remove_duplicates(collection):
     collection.delete_many({'_id': {'$in': delete_me}})
 
 
-# function to delete entire collection
+# function to delete entire collection, will delete the current collection being accessed
 def remove_collection(collection):
     choice = input("better be bloody sure mate! y to delete, n to back out while you still can: ")
     if choice == 'n':
@@ -59,6 +77,11 @@ def remove_collection(collection):
 def add_pagerank(collection):
     rows = []
     
+    files = [f for f in os.listdir(os.curdir) if os.path.isfile(f)]
+    print('\n')
+    print('These are the csv files in current directory: ')
+    [print(f) for f in files if f.endswith('.csv')]
+    print('\n')
     page = input("please enter csv file name including .csv: ")
 
     with open(page, "r") as f:
@@ -97,33 +120,66 @@ def add_pagerank(collection):
         k = re.sub(' ', '', k)
         k = re.sub('\'', '', k)
         if k in mypages:
-            values.update({k:v})
-    
+            if k not in values:
+                values.update({k:v})
     
     for k,v in values.items():
         k = re.sub('\"', '', k)
         k = re.sub(' ', '', k)
+        v = float(v)
+# left shift pagerank value by 2 to make more of an impact        
+        v *= 100
         collection.find_one_and_update({"domain": k},
                                         {'$set': {'pagerank' : v}},
-                                        return_document=ReturnDocument.AFTER)
+                                        return_document=ReturnDocument.AFTER, modifiers={'$snapshot': True} )
+        
+
+
+#Change collection configuration in settings.py for mongodb
+def change_collection(new_collection):
+    with open('settings.py') as my_settings:
+        lines = my_settings.readlines()
+    
+    f = open('settings.py', 'w')
+    for line in lines:
+        if line.startswith('MONGODB_COLLECTION'):
+            line = 'MONGODB_COLLECTION = ' + '\''+ new_collection +'\'' + '\n'
+            f.write(line)
+        else:
+            f.write(line)
+
+    f.close()
+
+#list collection in the index database
+def list_collections(db):
+    print('\n')
+    print("The collections in the index database are: ")
+    show = db.list_collection_names()
+    for item in show:
+        print(item)
 
 def main():
-
     ###### LOCALHOST CONNECTION
     client = MongoClient()
-    
-    ##### defaulting to index.pages collection as of now, where the crawler is storing the data.
+        
+    ##### Set database to index and then set collection to use / set collection name in settings file
     db = client.index
-    collection = db.pages
+    
+    print(list_collections(db))       
+    print('\n')    
+    my_collection = input("Enter collection to use(or create new one): ")
+    change_collection(my_collection)
+    collection = db[my_collection]
 
     answer = ''
 
     print("\n")
     print("If you are creating a new collection then you need to run index first!!!!!!")
     print("Index creates a test document to insert(so db/collection is saved) and then creates an index so we can search.")
-    print("If index is created already and you want to crawl more pages just enter quit.")
+    print("Only need to create index one time for a collection")
     print("Remove duplicates deletes all duplicates in database collection, should be run before pagerank and search commands.")
-    print("You need to run pagerank every time you add new pages to the collection if you want the pagerank score to search on. not necessary.")  
+    print("Only need to remove duplicates when new content added to collection(scraped data).")
+    print("You need to run pagerank every time you add new pages to the collection(uses .csv file to generate pagerank).")  
     print("Search allows you to search for specific terms in the collection you specify.")
     print("Remove allows you to entirely remove your specified collection.")
     print("\n")
@@ -146,10 +202,14 @@ def main():
             print("\n")
         
         elif answer == 'search':
-            text = input("Enter term you would like to search for: ")
-            print("\n")
-            text_search(collection,text)
-            print("\n")
+            while(text is not 'quit'):
+                text = input("Enter term you would like to search for(quit to return to menu): ")
+                if text == 'quit':
+                    break;
+                else:
+                    print("\n")
+                    text_search(collection,text)
+                    print("\n")
         
         elif answer == 'remove':
             remove_collection(collection)

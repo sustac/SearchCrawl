@@ -1,32 +1,26 @@
 #!/bin/bash
 
-
-python3 dbquery.py
-
-echo -e "\n--------------------------------------------------------------------------------------------------"
-echo -e "\nThe first command will run the web crawler and dump the data to mongoDB collection and csv file for graph program.\n"
-
-scrapy crawl hack_crawl
-
-echo -e "\n--------------------------------------------------------------------------------------------------"
-echo -e "\nIf you want to use the draw command in the graph program the number of nodes cant be to high
-      or the image wont load, enter info in graph program to see how big the graph is. \n"
-
 while true
 do
-	echo -e "Enter index to access mongoDB collection and run commands,\n"
+	echo -e "\n\nMake sure mongod is running in another terminal!!(sudo service mongod stop and then sudo mongod),\n"
+	echo -e "Enter index to access mongoDB collection and run commands(need to run first to create collection/index!),\n"
+	echo -e "Enter crawl to run web crawler and get data for mongodb collection,\n"
 	echo -e "Enter graph for graph metric data,\n"
 	read -p	"Enter quit to exit:  " answer
 
 	case $answer in
 
+		[crawl]* ) scrapy crawl hack_crawl
+			   echo "--------------------------------------------------------------------------------------------------"
+			   ;;
+
 		[graph]* ) python3 makegraph.py
-			   echo "---------------------------------------------------------------------------------------------"
-	 		   break;;
+			   echo "--------------------------------------------------------------------------------------------------"
+			   ;;
 			
 		[index]* ) python3 dbquery.py
-			   echo "----------------------------------------------------------------------------------------------"
-			   break;;
+			   echo "--------------------------------------------------------------------------------------------------"
+			   ;;
 	
 		[quit]*  ) exit;;
 

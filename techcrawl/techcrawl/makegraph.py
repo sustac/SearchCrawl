@@ -2,6 +2,7 @@ import csv
 import re
 import string
 import sys
+import os
 import networkx as nx
 from networkx.algorithms import approximation as apxa
 import matplotlib.pyplot as plt
@@ -14,6 +15,13 @@ def main():
 
 ############################################### get data from csv file, append to list
 
+    files = [f for f in os.listdir(os.curdir) if os.path.isfile(f)]
+    print('\n')
+    print('These are the csv files in current directory: ')
+    [print(f) for f in files if f.endswith('.csv')]
+    print('\n')
+
+    
     page = input("please enter csv file name including .csv: ")
     
     with open(page, "r") as f:
@@ -105,9 +113,11 @@ def main():
         
         elif answer == "pagerank":
             page_rank = nx.pagerank_numpy(G, alpha=0.9)
-            maximum = max(page_rank, key=page_rank.get)
-            print("max in page_rank ")
-            print(maximum, page_rank[maximum])
+            number = input("number of top pagerank scores to display: ")
+            top_out = sorted( ((v,k) for k,v in page_rank.items()), reverse = True)
+            print("top nodes by pagerank")
+            for i in range(int(number)):
+                print("{}: {}" .format(i+1, top_out[i]))
             print("\n")
         
         elif answer == "avg cluster":
