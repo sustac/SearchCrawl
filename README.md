@@ -13,7 +13,7 @@ This is where you will place the techcrawl project files.
 A python virtual environment prevents the project's python dependencies from conflicting with the system's.
 Before running any executables you need to type the command source bin/activate from the env directory(starts environment).
 
-Then chmod 755 prereq_outside.sh and ./prereq_outside.sh and then ./prereq_insdie.sh.
+Then chmod 755 prereq_outside.sh and ./prereq_outside.sh and then ./prereq_inside.sh.
 prereq_outside installs the dependencies for mongodb and creates a data folder for it in the root directory(needed).
 prereq_inside installs all of the python modules needed.
 
