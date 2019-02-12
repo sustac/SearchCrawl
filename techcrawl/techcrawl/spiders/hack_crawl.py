@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
 import scrapy
 import csv
 import re
+import os
 from urllib.parse import urlparse
 from techcrawl.items import TechcrawlItem
 from scrapy.linkextractors import LinkExtractor
@@ -10,6 +10,7 @@ from scrapy.linkextractors import LinkExtractor
 x = 0
 file_csv = ''
 depth = 0
+duplicate = []
 
 class HackCrawlSpider(scrapy.Spider):
     global stop
@@ -21,6 +22,12 @@ class HackCrawlSpider(scrapy.Spider):
     print("\n")
     url = input("Enter starting page(including https:// or http://): ")
     print("\n")
+    
+    files = [f for f in os.listdir(os.curdir) if os.path.isfile(f)]
+    print('These are the csv files in current directory: ')
+    [print(f) for f in files if f.endswith('.csv')]
+    print('\n')
+
     file_csv = input("Enter csv output file name: ")
     print("\n")
     depth = input("Enter crawl depth(1-20): ")
@@ -32,9 +39,11 @@ class HackCrawlSpider(scrapy.Spider):
     def parse(self, response):
         global x
         global file_csv
+        global duplicate
         links = []
         webdata = []
         url_list = []
+        
 
         if response.xpath('//a/@href').extract() is not None:
             for link in response.xpath('//a/@href').extract():
@@ -57,16 +66,20 @@ class HackCrawlSpider(scrapy.Spider):
                         item['body'] = response.xpath('//p/text()').extract()
                         item['domain'] = url
                         item['pagerank'] = 0.0
+                        item['score_added'] = int(0)
                         yield item
+                    stopdupe = link + url
+                    if(stopdupe not in duplicate):
+                        duplicate.append(stopdupe)
+                        webdata.append(url)
+                        webdata.append(link)
 
-                    webdata.append(url)
-                    webdata.append(link)
 
-                    with open(file_csv, 'a') as outfile:
-                        wr = csv.writer(outfile, quoting=csv.QUOTE_ALL)
-                        wr.writerow(webdata)
+                        with open(file_csv, 'a') as outfile:
+                            wr = csv.writer(outfile, quoting=csv.QUOTE_ALL)
+                            wr.writerow(webdata)
 
-                    webdata = []
+                        webdata = []
                                 
             x += 1
         
