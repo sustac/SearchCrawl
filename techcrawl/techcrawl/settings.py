@@ -9,17 +9,23 @@
 #     https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
+
 BOT_NAME = 'techcrawl'
 
 SPIDER_MODULES = ['techcrawl.spiders']
 NEWSPIDER_MODULE = 'techcrawl.spiders'
 
+#ITEM_PIPELINES = {'techcrawl.pipelines.TechcrawlPipeline': 100,}
+#ITEM_PIPELINES = {'techcrawl.pipelines.MongoPipeline': 800,}
+
 MONGODB_SERVER = 'localhost'
 MONGODB_PORT = 27017
 MONGODB_DB = 'index'
-MONGODB_COLLECTION = 'pages'
-
+MONGODB_COLLECTION = 'test'
 ITEM_PIPELINES = {'techcrawl.pipelines.TechcrawlPipeline': 300,}
+
+
+LOG_LEVEL = 'INFO'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'techcrawl (+http://www.yourdomain.com)'
@@ -33,13 +39,15 @@ ROBOTSTXT_OBEY = True
 # Configure a delay for requests for the same website (default: 0)
 # See https://doc.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-#DOWNLOAD_DELAY = 3
+DOWNLOAD_DELAY = 2
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-#COOKIES_ENABLED = False
+COOKIES_ENABLED = False
+RETRY_ENABLED = False
+REDIRECT_ENABLES = False
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
@@ -52,15 +60,15 @@ ROBOTSTXT_OBEY = True
 
 # Enable or disable spider middlewares
 # See https://doc.scrapy.org/en/latest/topics/spider-middleware.html
-SPIDER_MIDDLEWARES = {
-    'techcrawl.middlewares.TechcrawlSpiderMiddleware': 543,
-}
+#SPIDER_MIDDLEWARES = {
+#    'techcrawl.middlewares.TechcrawlSpiderMiddleware': 543,
+#}
 
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
-DOWNLOADER_MIDDLEWARES = {
-    'techcrawl.middlewares.TechcrawlDownloaderMiddleware': 543,
-}
+#DOWNLOADER_MIDDLEWARES = {
+#    'techcrawl.middlewares.TechcrawlDownloaderMiddleware': 543,
+#}
 
 # Enable or disable extensions
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
@@ -70,9 +78,6 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'techcrawl.pipelines.TechcrawlPipeline': 300,
-#}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html

@@ -14,4 +14,5 @@ class TechcrawlItem(Item):
     domain = Field()
     pagerank = Field()
     score_added = Field()
+    have_added = Field()
     body = Field()
