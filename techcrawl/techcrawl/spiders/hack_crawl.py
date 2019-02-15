@@ -24,10 +24,11 @@ class HackCrawlSpider(scrapy.Spider):
     print("\n")
     
     files = [f for f in os.listdir(os.curdir) if os.path.isfile(f)]
+    files = [f for f in files if f.endswith('.csv')]
     print('These are the csv files in current directory: ')
-    [print(f) for f in files if f.endswith('.csv')]
+    [print(f) for f in files]
     print('\n')
-
+    
     file_csv = input("Enter csv output file name: ")
     print("\n")
     depth = input("Enter crawl depth(1-20): ")
@@ -67,6 +68,7 @@ class HackCrawlSpider(scrapy.Spider):
                         item['domain'] = url
                         item['pagerank'] = 0.0
                         item['score_added'] = int(0)
+                        item['have_added'] = int(0)
                         yield item
                     stopdupe = link + url
                     if(stopdupe not in duplicate):
