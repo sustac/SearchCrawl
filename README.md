@@ -1,7 +1,7 @@
 SearchCrawl
 
-The techcrawl repository contains a scrapy webcrawler, a program to convert website links into a graph and view various graph metrics and a mongoDB database to store webcrawler data. This collection allows the utilization
-of search queries of the data. This can be used as a simple search engine. 
+The SearchCrawl repository contains a scrapy webcrawler, a program to convert website links into a graph and view various graph metrics and a mongoDB database to store webcrawler data. This collection allows the utilization
+of search queries of the data. This can be used as a personal search engine. 
 
 Has only been tested on Ubuntu 18.04
 
@@ -19,13 +19,9 @@ prereq_inside installs all of the python modules needed.
 
 Once everything has been installed, simply type ./run.sh.
 
-This will initiate the crawler once you have specified an output file and the url to start from.
-The crawler will grab links from the pages it encounters, and then crawl all of them for 
-title of the page, base_url, body and of course links.
-
-Once done you will be prompted to use the graph program or the index program. The graph program can
-produce various graph metrics of the websites and links plus draw a simple visualization of the graph.
-The index program will let you search the crawled data for the terms you supply and manage mongodb collections. 
+This will display a menu for index, crawl, and graph. You must run index first to create mongoDB collection and index it
+to enable text searching. After you have indexed a collection you may run the crawl program. After the crawl you will be
+able to search the results or you will be able to see various graph metrics and view a basic visualization of the crawl. This can be constantly done on the same collection or you may create others. The index program allows you to create, index, remove duplicates and completley remove collections. 
 
 You dont have to use run.sh. You can run the programs on the command line.
 
