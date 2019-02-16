@@ -39,6 +39,8 @@ def text_search(collection,text):
         b = a[1]
         b = b.split(', \'url\':')
         x += 1
+        b[0] = re.sub('\n', '', b[0])
+        b[0] = re.sub('\r', '', b[0])
         print("{}:{}" .format(x,b[0]))
         print("{} \n".format(b[1]))
     print('-----------------------------------------------------------------------------')
@@ -46,9 +48,10 @@ def text_search(collection,text):
 
 #function to create indexed fields to enable text search of them, also insert a dummy document to be able to have an index(cant index nothing).
 def create_index(collection):
-    mydict = { "title" : "x", "url" : "w", "body" : "testtesttest", "domain" : "test.com" }
+    mydict = { "title" : "x", "url" : "w", "body" : "testtesttest", "header" : "wordsssss" , "domain" : "test.com" }
     collection.insert_one(mydict)
-    collection.create_index([("title" , pymongo.TEXT), ("url" , pymongo.TEXT), ("body", pymongo.TEXT), ("domain", pymongo.TEXT)], default_language='english')
+    collection.create_index([("title" , pymongo.TEXT), ("url" , pymongo.TEXT), ("body", pymongo.TEXT), ("header", pymongo.TEXT), 
+                             ("domain", pymongo.TEXT)], default_language='english')
     print('\n')
     print('collection has been indexed')
 

@@ -11,6 +11,7 @@ from scrapy.item import Item, Field
 class TechcrawlItem(Item):
     title = Field()
     url = Field()
+    headers = Field()
     domain = Field()
     pagerank = Field()
     score_added = Field()
