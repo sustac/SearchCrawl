@@ -29,9 +29,9 @@ class HackCrawlSpider(scrapy.Spider):
     [print(f) for f in files]
     print('\n')
     
-    file_csv = input("Enter csv output file name: ")
+    file_csv = input("Enter csv output file name(use existing or create one): ")
     print("\n")
-    depth = input("Enter crawl depth(1-20): ")
+    depth = input("Enter crawl depth: ")
     depth = int(depth)
     print("\n")
     
@@ -56,26 +56,35 @@ class HackCrawlSpider(scrapy.Spider):
                 url = re.sub('http://', '', url)
                 url = re.sub('www.', '', url)
                 if(link.startswith('https://') or link.startswith('http://')):
+                    
+                    #limit crawl and only add link once
                     if (x < depth):
                         if(link not in links):
                             links.append(link)
+                    
+                    #will only write url to collection once
                     if(response.url not in url_list):
                         url_list.append(response.url)
+                        header = response.xpath('//h1/text()').extract()
+                        header += response.xpath('//h2/text()').extract()
+                        header += response.xpath('//h3/text()').extract()
                         item = TechcrawlItem()
                         item['title'] = response.xpath('//title/text()').extract_first()
                         item['url'] = response.url
                         item['body'] = response.xpath('//p/text()').extract()
+                        item['headers'] = header
                         item['domain'] = url
                         item['pagerank'] = 0.0
                         item['score_added'] = int(0)
                         item['have_added'] = int(0)
                         yield item
+                    
+                    # doing best to stop duplicates in csv file
                     stopdupe = link + url
                     if(stopdupe not in duplicate):
                         duplicate.append(stopdupe)
                         webdata.append(url)
                         webdata.append(link)
-
 
                         with open(file_csv, 'a') as outfile:
                             wr = csv.writer(outfile, quoting=csv.QUOTE_ALL)
@@ -88,6 +97,7 @@ class HackCrawlSpider(scrapy.Spider):
         else:
             pass
                   
+        #links to follow in crawl
         for y in range(len(links)):
             next_page = links[y]
             if next_page is not None:
