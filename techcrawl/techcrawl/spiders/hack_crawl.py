@@ -17,11 +17,20 @@ class HackCrawlSpider(scrapy.Spider):
     global file_csv
     global depth
     name = 'hack_crawl'
+    seed_urls = []
+    
 
     #### Enter seed page and the output file to write links to, needed for makegraph and to calculate pagerank. Enter crawl depth.
     print("\n")
-    url = input("Enter starting page(including https:// or http://): ")
-    print("\n")
+    url = ''
+    while url != 'done':
+        url = input("Enter initial starting page(s)(including https:// or http://)(enter done to stop): ")
+        if url == 'done':
+            url = 'done'
+            print('\n')
+        else:
+            seed_urls.append(url)
+        print("\n")
     
     files = [f for f in os.listdir(os.curdir) if os.path.isfile(f)]
     files = [f for f in files if f.endswith('.csv')]
@@ -35,7 +44,7 @@ class HackCrawlSpider(scrapy.Spider):
     depth = int(depth)
     print("\n")
     
-    start_urls = [url]
+    start_urls = seed_urls
 
     def parse(self, response):
         global x
