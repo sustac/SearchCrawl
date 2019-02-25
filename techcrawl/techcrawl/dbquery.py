@@ -252,6 +252,7 @@ def main():
         elif answer == 'remove':
             remove_collection(collection)
             print(list_collections(db))
+            print('\n')
             my_collection = input("Enter collection to use(or create new one): ")
             change_collection(my_collection)
             collection = db[my_collection]

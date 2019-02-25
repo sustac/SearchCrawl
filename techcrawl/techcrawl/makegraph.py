@@ -71,6 +71,46 @@ def node_degree(G):
     for i in range(int(number)):
         print("{}: {}" .format(i+1,top_degree[i]))
 
+
+# function to return immediate dominators/dominance frontier
+def dominance(G):
+    
+    while start != 'done':
+        start = input("please enter start node: ")
+        start = '\''+start+'\''
+        if start not in G.nodes:
+            print("webpage not in graph, please re-try.")
+        else:
+            start = 'done'
+            
+    imm_dominance = nx.immediate_dominators(G, start)
+    front_dominance = nx.dominance_frontiers(G, start)
+    
+    print('\n')
+    print("The number of immediate dominators is {} and the number of paths in dominace frontier is {}. " 
+          .format(len(imm_dominance), len(front_dominance)))
+    print('\n')
+    
+    number = input("number of immediate dominators to display: ")
+    print('\n')
+    print("The immediate dominators from start node {}: " .format(start))
+    print('\n')
+    top_dom = sorted( ((v,k) for k,v in imm_dominance.items()), reverse=True)
+    for i in range(int(number)):
+        print("{}: {}" .format(i+1,top_dom[i]))
+    print('\n')
+
+    
+    number = input("number of paths in dominance frontier to display: ")
+    print('\n')
+    print("The dominance frontier from start node {}: " .format(start))
+    print('\n')
+    top_dom = sorted( ((v,k) for k,v in front_dominance.items()), reverse=True)
+    for i in range(int(number)):
+        print("{}: {}" .format(i+1,top_dom[i]))
+        print('\n')
+
+
 # function to return list of highest in_centralities
 def in_centrality(G):
 
@@ -104,6 +144,9 @@ def closeness_centrality(G):
 # function to look at specific node(web page) and see connections(links) and visualize
 def neighbors(G):
     
+    print('Neighbors are the outgoing links, will differ from node degree which is all links.')
+    print('\n')
+    
     data = ''
     while data != 'n':
         
@@ -121,14 +164,15 @@ def neighbors(G):
     print('\n')
     print("{} neighbors are: " .format(node))
     print('\n')
-    x = 0
     
+    x = 0
     for item in nx.neighbors(G,node):
         print('{}. {}' .format(x+1,item))
         N.add_edge(node,item)
         x += 1
     print('\n')
     
+    print('If node has over 50 neighbors graph will overlap and become non sense.')
     choice = input('Would you like to see graph of neighbors(y or n): ')
     if choice is 'y':
         nx.draw(N, with_labels=True)
@@ -202,22 +246,40 @@ def hits(G):
             choice = ''
             while choice != 'n':
                 
-                choice = input('Enter h for hub or a for authority: ')
+                choice = input('Enter h for hub or a for authority(quit to return to menu): ')
                 print('\n')
 
                 if choice == 'h':
-                    page = input('Enter web page to find: ')
-                    print('\n')
-                    page = '\''+page+'\''
-                    print('{} hub score is {}' .format(page, h.get(page)))
-                    print('\n')
+                    page = ''
+                    while page != 'n':
+                        page = input('Enter web page to find: ')
+                        page = '\''+page+'\''
+                        
+                        if page not in G.nodes:
+                            print('\n')
+                            print('webpage not in graph, please re-try.')
+                        
+                        else:
+                            print('\n')
+                            print('{} hub score is {}' .format(page, h.get(page)))
+                            print('\n')
+                            page = 'n'
 
                 elif choice == 'a':
-                    page = input('Enter web page to find: ')
-                    print('\n')
-                    page = '\''+page+'\''
-                    print('{} authority score is {}' .format(page, a.get(page)))
-                    print('\n')
+                    page = ''
+                    while page != 'n':
+                        page = input('Enter web page to find: ')
+                        page = '\''+page+'\''
+                    
+                        if page not in G.nodes:
+                            print('\n')
+                            print('webpage not in graph, please re-try.')
+                    
+                        else:
+                            print('\n')    
+                            print('{} authority score is {}' .format(page, a.get(page)))
+                            print('\n')
+                            page = 'n'
 
                 elif choice == 'quit':
                     choice = 'n'
@@ -232,10 +294,52 @@ def hits(G):
             print('come again, say what?')
             print('\n')
 
+# function to see if 2 nodes share a common neighbor
+def share(G):
+    
+    data = ''
+    while data != 'n':
+        node1 = input('enter first node: ')
+        node1 = '\''+node1+'\''
+        
+        if node1 in G.nodes:
+            data = 'n'
+        else:
+            print('webpage not in graph, please re-try.')
+            print('\n')
+            
+    while data != 'b':
+        node2 = input('enter second node: ')
+        node2 = '\''+node2+'\''
+        
+        if node2 in G.nodes:
+            data = 'b'
+        else:
+            print('webpage not in graph, please re-try.')
+            print('\n')
+
+    list3 = []
+
+    for item in nx.neighbors(G,node1):
+        if item in nx.neighbors(G,node2):
+            list3.append(item)
+
+    if list3 is None:
+        print('\n')
+        print("There are no common links.")
+
+    if list3 is not None:
+        print('\n')
+        print('The common links are:')
+        print('\n')
+        for item in list3:
+            print(item)
+
 # function to display program choices
 def options():
 
-    options = ['info', 'clear screen', 'density', 'node degree', 'neighbors', 'in centrality', 'out centrality', 'closeness centrality', 'avg cluster',
+    options = ['info(disregard in/out average meant for undirected graphs)', 'clear screen', 'density', 'dominance(immediate,frontier)', 'node degree', 'neighbors', 
+               'share(shared outgoing links)','in centrality', 'out centrality', 'closeness centrality', 'avg cluster',
                'pagerank(google original ranking algorithm)', 'hits(hubs and authorities ranking algorithm)', 'draw']
     
     print("the options are: ")
@@ -278,6 +382,11 @@ def main():
             print("\n")
             print('-----------------------------------------------------------------------------')
         
+        elif answer == "dominance":
+            dominance(G)
+            print('\n')
+            print('-----------------------------------------------------------------------------')
+            
         elif answer == "node degree":
             node_degree(G)
             print("\n")
@@ -285,6 +394,11 @@ def main():
         
         elif answer == 'neighbors':
             neighbors(G)
+            print('\n')
+            print('-----------------------------------------------------------------------------')
+        
+        elif answer == 'share':
+            share(G)
             print('\n')
             print('-----------------------------------------------------------------------------')
         
