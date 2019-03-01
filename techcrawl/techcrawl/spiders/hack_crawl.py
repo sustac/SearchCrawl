@@ -69,7 +69,14 @@ class HackCrawlSpider(scrapy.Spider):
                     #limit crawl and only add link once
                     if (x < depth):
                         if(link not in links):
-                            links.append(link)
+                            if 'wikipedia' in link:
+                                break
+                            elif 'stackexchange' in link:
+                                break
+                            elif 'tumblr' in link:
+                                break
+                            else:
+                                links.append(link)
                     
                     #will only write url to collection once
                     if(response.url not in url_list):
