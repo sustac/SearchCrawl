@@ -4,7 +4,7 @@ import os
 import sys
 import pymongo
 import networkx as nx
-from copy import deepcopy
+#from copy import deepcopy
 from pymongo import MongoClient, ReturnDocument
 
 
@@ -48,6 +48,7 @@ def text_search(collection,text):
 
 #function to create indexed fields to enable text search of them, also insert a dummy document to be able to have an index(cant index nothing).
 def create_index(collection):
+    
     mydict = { "title" : "x", "url" : "w", "body" : "testtesttest", "header" : "wordsssss" , "domain" : "test.com" }
     collection.insert_one(mydict)
     collection.create_index([("title" , pymongo.TEXT), ("url" , pymongo.TEXT), ("body", pymongo.TEXT), ("header", pymongo.TEXT), 
@@ -57,6 +58,7 @@ def create_index(collection):
 
 # function to loop through the collection and remove duplicates, insanely hard to avoid duplicates and not throw errors while crawling.
 def remove_duplicates(collection):
+    
     cursor = collection.aggregate(
             [
                 {'$group': {'_id': '$domain', 'unique_ids': {'$addToSet': '$_id'}, 'count': {'$sum': 1}}},
@@ -64,33 +66,44 @@ def remove_duplicates(collection):
             ]
     )
     
-    delete_me = []
+    delete = []
     for doc in cursor:
         del doc['unique_ids'][0]
         for id in doc['unique_ids']:
-            delete_me.append(id)
+            delete.append(id)
 
-    collection.delete_many({'_id': {'$in': delete_me}})
+    collection.delete_many({'_id': {'$in': delete}})
     print('\n')
     print('duplicates have been removed.')
 
 
 # function to delete entire collection, will delete the current collection being accessed
 def remove_collection(collection):
-    print('\n')
-    choice = input("better be bloody sure mate! y to delete, n to back out while you still can: ")
-    if choice == 'n':
-        print('good call')
-        print("\n")
     
-    else:
-        collection.drop()
-        print('\n')
-        print("collection dropped")
-        print("\n")
+    print('\n')
+    choice = ''
+    while choice != 'done':
+        choice = input("better be bloody sure mate! y to delete, n to back out while you still can: ")
+        if choice == 'n':
+            print('\n')
+            print('good call')
+            print("\n")
+            choice = 'done'
+    
+        elif choice == 'y':
+            collection.drop()
+            print('\n')
+            print("collection dropped")
+            print("\n")
+            choice = 'done'
+
+        else:
+            print('that choice is not y or n.')
+            print('\n')
 
 # function to create pagerank scores and then add them to the pagerank field in the collection. utilizing networkx!
 def add_pagerank(collection):
+    
     rows = []
     
 #list all csv files in current directory
@@ -168,6 +181,7 @@ def add_pagerank(collection):
 
 #Change collection configuration in settings.py for mongodb / if sharing a settings file with multible users, could cause race conditions
 def change_collection(new_collection):
+    
     with open('settings.py') as my_settings:
         lines = my_settings.readlines()
     
@@ -183,6 +197,7 @@ def change_collection(new_collection):
 
 #list collection in the index database
 def list_collections(db):
+    
     print('\n')
     print("The collections in the index database are: ")
     show = db.list_collection_names()
@@ -190,6 +205,7 @@ def list_collections(db):
         print(item)
 
 def main():
+    
     # LOCALHOST CONNECTION
     client = MongoClient()
         
@@ -198,9 +214,22 @@ def main():
     
     print(list_collections(db))       
     print('\n')    
-    my_collection = input("Enter collection to use(or create new one): ")
-    change_collection(my_collection)
-    collection = db[my_collection]
+    print('The collection set here sets it in the crawler settings file, make sure it is correct!')
+    print('\n')
+
+    choice = ''
+    while choice != 'n':
+        my_collection = input("Enter collection to use(or create new one): ")
+        makesure = input("Is {} correct(y or n)? " .format(my_collection))
+        if makesure == 'y':
+            change_collection(my_collection)
+            collection = db[my_collection]
+            choice = 'n'
+        
+        else:
+            continue
+            print('\n')
+            
 
     answer = ''
 

@@ -5,9 +5,10 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import pymongo
+import logging
 from scrapy.conf import settings
 from scrapy.exceptions import DropItem
-from scrapy import log
+
 
 class TechcrawlPipeline(object):
     
@@ -27,6 +28,5 @@ class TechcrawlPipeline(object):
                 raise DropItem("houston we have a problem {0}." .format(data))
             if valid:
                 self.collection.insert(dict(item))
-              #  self.collection.insert.insert_one(dict(item))
-                log.msg("page added.", level=log.DEBUG, spider=spider)
+                logging.log(logging.DEBUG, "page added.")
         return item

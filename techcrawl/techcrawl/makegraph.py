@@ -6,6 +6,8 @@ import os
 import networkx as nx
 from networkx.algorithms import approximation as apxa
 import matplotlib.pyplot as plt
+import warnings
+warnings.filterwarnings("ignore") # only here to drop ComplexWarning from hits algorithm
 
 # function to grab data from csv file and append to list
 def get_data():
@@ -75,71 +77,196 @@ def node_degree(G):
 # function to return immediate dominators/dominance frontier
 def dominance(G):
     
-    while start != 'done':
+    data = ''
+    while data != 'done':
         start = input("please enter start node: ")
         start = '\''+start+'\''
         if start not in G.nodes:
             print("webpage not in graph, please re-try.")
+            print('\n')
         else:
-            start = 'done'
+            data = 'done'
             
     imm_dominance = nx.immediate_dominators(G, start)
     front_dominance = nx.dominance_frontiers(G, start)
     
     print('\n')
-    print("The number of immediate dominators is {} and the number of paths in dominace frontier is {}. " 
+    print("The number of immediate dominators is {} and the number of paths in dominance frontier is {}. " 
           .format(len(imm_dominance), len(front_dominance)))
     print('\n')
     
-    number = input("number of immediate dominators to display: ")
-    print('\n')
-    print("The immediate dominators from start node {}: " .format(start))
-    print('\n')
-    top_dom = sorted( ((v,k) for k,v in imm_dominance.items()), reverse=True)
-    for i in range(int(number)):
-        print("{}: {}" .format(i+1,top_dom[i]))
-    print('\n')
+    data = ''
+    while data != 'quit':
+        data = input("enter list to list immediate doms or enter search to find specific node(quit to return to menu): ")
+    
+        if data == 'list':
+            number = input("number of immediate dominators to display: ")
+            print('\n')
+            print("The immediate dominators from start node {}: " .format(start))
+            print('\n')
+            top_dom = sorted( ((v,k) for k,v in imm_dominance.items()), reverse=True)
+            for i in range(int(number)):
+                print("{}: {}" .format(i+1,top_dom[i]))
+            print('\n')
+
+        elif data == 'search':
+            while data != 'done':
+                page = input('Enter web page to find: ')
+                page = '\''+page+'\''
+                if page not in G.nodes:
+                    print("webpage not in graph, please re-try.")
+                    print('\n')
+                else:
+                    data = 'done'
+            print('\n')
+            print('the right column dominates the left')
+            print('\n')
+            for item in imm_dominance.items():
+                if page in item:
+                    print(item)
+            print('\n')
+
+        elif data == 'quit':
+            data = 'quit'
+
+        else:
+            print('come again, say what?')
+            print('\n')
 
     
-    number = input("number of paths in dominance frontier to display: ")
-    print('\n')
-    print("The dominance frontier from start node {}: " .format(start))
-    print('\n')
-    top_dom = sorted( ((v,k) for k,v in front_dominance.items()), reverse=True)
-    for i in range(int(number)):
-        print("{}: {}" .format(i+1,top_dom[i]))
+    data = ''
+    while data != 'quit':
         print('\n')
+        data = input("Search for web page in the dominance frontier(y or n)?")
+        print('\n')
+        if data == 'y':
+            while page != 'done':
+                page = input("enter web page to see the paths it's included in(quit to return to menu): ")
+                page = '\''+page+'\''
+                if page not in G.nodes:
+                    print("webpage not in graph, please re-try.")
+                    print('\n')
+                else:
+                    print('\n')
+                    print("The paths {} is included in." .format(page))
+                    print('\n')
+                    for item in front_dominance.items():
+                        if page in item:
+                            print(item)
+                    page = 'done'
+                    print('\n')
+        
+        elif data == 'n':
+            data = 'quit'
 
+        else:
+            print('come again, say what?')
+            print('\n')
 
 # function to return list of highest in_centralities
 def in_centrality(G):
 
-    number = input("number of top in centrality to display: ")
     inDegree = nx.in_degree_centrality(G)
-    top_in = sorted( ((v,k) for k,v in inDegree.items()), reverse=True)
-    print("top nodes by in_degree centrality")
-    for i in range(int(number)):
-        print("{}: {}" .format(i+1,top_in[i]))
+    
+    data = ''
+    while data !='quit':
+        data = input("Enter top for highest in centralities or search to find single page(quit to return to menu): ")
+        print('\n')
+
+        if data == 'top':
+            number = input("enter number of centralities to show: ")
+            print('\n')
+            top_in = sorted( ((v,k) for k,v in inDegree.items()), reverse=True)
+            print("top nodes by in centrality")
+            print('\n')
+            for i in range(int(number)):
+                print("{}: {}" .format(i+1, top_in[i]))
+            print('\n')
+
+        elif data == 'search':
+            page = input('Enter web page to find: ')
+            page = '\''+page+'\''
+            print('\n')
+            print('{} out centrality is {}' .format(page, inDegree.get(page)))
+            print('\n')
+
+        elif data == 'quit':
+            data = 'quit'
+
+        else:
+            print("come again, say what?")
+            print('\n')
+
 
 # function to return list of highest out_centralities
 def out_centrality(G):
 
-    number = input("number of top out centrality to display: ")
     outDegree = nx.out_degree_centrality(G)
-    top_out = sorted( ((v,k) for k,v in outDegree.items()), reverse=True)
-    print("top nodes by out_degree centrality")
-    for i in range(int(number)):
-        print("{}: {}" .format(i+1, top_out[i]))
+    
+    data = ''
+    while data !='quit':
+        data = input("Enter top for highest out centralities or search to find single page(quit to return to menu): ")
+        print('\n')
+
+        if data == 'top':
+            number = input("enter number of centralities to show: ")
+            print('\n')
+            top_out = sorted( ((v,k) for k,v in outDegree.items()), reverse=True)
+            print("top nodes by out centrality")
+            print('\n')
+            for i in range(int(number)):
+                print("{}: {}" .format(i+1, top_out[i]))
+            print('\n')
+
+        elif data == 'search':
+            page = input('Enter web page to find: ')
+            page = '\''+page+'\''
+            print('\n')
+            print('{} out centrality is {}' .format(page, outDegree.get(page)))
+            print('\n')
+
+        elif data == 'quit':
+            data = 'quit'
+
+        else:
+            print("come again, say what?")
+            print('\n')
+
 
 # function to return list of highest closeness centralities
 def closeness_centrality(G):
 
-    number = input("number of closeness centralities to display: ")
     closeDegree = nx.closeness_centrality(G)
-    top_close = sorted( ((v,k) for k,v in closeDegree.items()), reverse=True)
-    print("top nodes by closeness centrality")
-    for i in range(int(number)):
-        print("{}: {}" .format(i+1, top_close[i]))
+
+    data = ''
+    while data !='quit':
+        data = input("Enter top for highest closeness centralities or search to find single page(quit to return to menu): ")
+        print('\n')
+        
+        if data == 'top':
+            number = input("enter number of centralities to show: ")
+            print('\n')
+            top_close = sorted( ((v,k) for k,v in closeDegree.items()), reverse=True)
+            print("top nodes by closeness centrality")
+            print('\n')
+            for i in range(int(number)):
+                print("{}: {}" .format(i+1, top_close[i]))
+            print('\n')
+
+        elif data == 'search':
+            page = input('Enter web page to find: ')
+            page = '\''+page+'\''
+            print('\n')
+            print('{} closeness centrality is {}' .format(page, closeDegree.get(page)))
+            print('\n')
+
+        elif data == 'quit':
+            data = 'quit'
+
+        else:
+            print("come again, say what?")
+            print('\n')
+
 
 # function to look at specific node(web page) and see connections(links) and visualize
 def neighbors(G):
@@ -175,7 +302,14 @@ def neighbors(G):
     print('If node has over 50 neighbors graph will overlap and become non sense.')
     choice = input('Would you like to see graph of neighbors(y or n): ')
     if choice is 'y':
-        nx.draw(N, with_labels=True)
+        list_node = []
+        list_node.append(node)
+        pos = nx.spring_layout(N) #,scale = 6)
+        nx.draw_networkx_nodes(N,pos, node_size=600)
+        nx.draw_networkx_nodes(N,pos, nodelist = list_node, node_color='b', node_size=600)
+        nx.draw_networkx_edges(N, pos, width=1)
+        nx.draw_networkx_labels(N, pos)
+        plt.axis('off')
         plt.show()
 
 # function to generate page rank score of each node(web page) and display/search results
@@ -216,6 +350,7 @@ def page_rank(G):
 def hits(G):
     
     h,a = nx.hits_numpy(G, normalized = True)
+    
     top_hubs = sorted( ((v,k) for k,v in h.items()), reverse = True)
     top_auth = sorted( ((v,k) for k,v in a.items()), reverse = True)
     data = ''
@@ -324,16 +459,45 @@ def share(G):
         if item in nx.neighbors(G,node2):
             list3.append(item)
 
-    if list3 is None:
+    if len(list3) == 0:
         print('\n')
         print("There are no common links.")
 
-    if list3 is not None:
+    if len(list3) != 0:
         print('\n')
         print('The common links are:')
         print('\n')
         for item in list3:
             print(item)
+        print('\n')
+
+        data = ''
+        while data != 'd':
+            data = input('would you like to see graph of shared links(y or n)? ')
+            if data == 'y':
+                N = nx.DiGraph()
+                for item in list3:
+                    N.add_edge(node1,item)
+                    N.add_edge(node2,item)
+                list_node = []
+                list_node.append(node1)
+                list_node.append(node2)
+                pos = nx.shell_layout(N)
+                nx.draw_networkx_nodes(N,pos, node_size=500)
+                nx.draw_networkx_nodes(N,pos, nodelist = list_node, node_color='b', node_size=500)
+                nx.draw_networkx_edges(N, pos, width=1)
+                nx.draw_networkx_labels(N, pos)
+                plt.axis('off')
+                plt.show()
+                data = 'd'
+        
+            elif data == 'n':
+                data = 'd'
+        
+            else:
+                print('choice is not y or n.')
+                print('\n')
+
 
 # function to display program choices
 def options():
