@@ -3,9 +3,11 @@ import re
 import string
 import sys
 import os
+import random
 import networkx as nx
 from networkx.algorithms import approximation as apxa
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 import warnings
 warnings.filterwarnings("ignore") # only here to drop ComplexWarning from hits algorithm
 
@@ -74,7 +76,7 @@ def node_degree(G):
         print("{}: {}" .format(i+1,top_degree[i]))
 
 
-# function to return immediate dominators/dominance frontier
+# function to return immediate dominators
 def dominance(G):
     
     data = ''
@@ -88,11 +90,10 @@ def dominance(G):
             data = 'done'
             
     imm_dominance = nx.immediate_dominators(G, start)
-    front_dominance = nx.dominance_frontiers(G, start)
     
     print('\n')
-    print("The number of immediate dominators is {} and the number of paths in dominance frontier is {}. " 
-          .format(len(imm_dominance), len(front_dominance)))
+    print("The number of immediate dominators is {}. " 
+          .format(len(imm_dominance)))
     print('\n')
     
     data = ''
@@ -127,36 +128,6 @@ def dominance(G):
             print('\n')
 
         elif data == 'quit':
-            data = 'quit'
-
-        else:
-            print('come again, say what?')
-            print('\n')
-
-    
-    data = ''
-    while data != 'quit':
-        print('\n')
-        data = input("Search for web page in the dominance frontier(y or n)?")
-        print('\n')
-        if data == 'y':
-            while page != 'done':
-                page = input("enter web page to see the paths it's included in(quit to return to menu): ")
-                page = '\''+page+'\''
-                if page not in G.nodes:
-                    print("webpage not in graph, please re-try.")
-                    print('\n')
-                else:
-                    print('\n')
-                    print("The paths {} is included in." .format(page))
-                    print('\n')
-                    for item in front_dominance.items():
-                        if page in item:
-                            print(item)
-                    page = 'done'
-                    print('\n')
-        
-        elif data == 'n':
             data = 'quit'
 
         else:
@@ -267,12 +238,9 @@ def closeness_centrality(G):
             print("come again, say what?")
             print('\n')
 
-
 # function to look at specific node(web page) and see connections(links) and visualize
 def neighbors(G):
     
-    print('Neighbors are the outgoing links, will differ from node degree which is all links.')
-    print('\n')
     
     data = ''
     while data != 'n':
@@ -293,7 +261,7 @@ def neighbors(G):
     print('\n')
     
     x = 0
-    for item in nx.neighbors(G,node):
+    for item in nx.all_neighbors(G,node):
         print('{}. {}' .format(x+1,item))
         N.add_edge(node,item)
         x += 1
@@ -310,6 +278,8 @@ def neighbors(G):
         nx.draw_networkx_edges(N, pos, width=1)
         nx.draw_networkx_labels(N, pos)
         plt.axis('off')
+        wm = plt.get_current_fig_manager()
+        wm.resize(*wm.window.maxsize())
         plt.show()
 
 # function to generate page rank score of each node(web page) and display/search results
@@ -455,8 +425,8 @@ def share(G):
 
     list3 = []
 
-    for item in nx.neighbors(G,node1):
-        if item in nx.neighbors(G,node2):
+    for item in nx.all_neighbors(G,node1):
+        if item in nx.all_neighbors(G,node2):
             list3.append(item)
 
     if len(list3) == 0:
@@ -467,8 +437,10 @@ def share(G):
         print('\n')
         print('The common links are:')
         print('\n')
+        x = 1
         for item in list3:
-            print(item)
+            print("{}. {}" .format(x,item))
+            x += 1
         print('\n')
 
         data = ''
@@ -477,17 +449,17 @@ def share(G):
             if data == 'y':
                 N = nx.DiGraph()
                 for item in list3:
-                    N.add_edge(node1,item)
-                    N.add_edge(node2,item)
+                    N.add_edge('shared',item)
                 list_node = []
-                list_node.append(node1)
-                list_node.append(node2)
-                pos = nx.shell_layout(N)
-                nx.draw_networkx_nodes(N,pos, node_size=500)
-                nx.draw_networkx_nodes(N,pos, nodelist = list_node, node_color='b', node_size=500)
+                list_node.append('shared')
+                pos = nx.spring_layout(N)
+                nx.draw_networkx_nodes(N,pos, node_size=600)
+                nx.draw_networkx_nodes(N,pos, nodelist = list_node, node_color='b', node_size=600)
                 nx.draw_networkx_edges(N, pos, width=1)
                 nx.draw_networkx_labels(N, pos)
                 plt.axis('off')
+                wm = plt.get_current_fig_manager()
+                wm.resize(*wm.window.maxsize())
                 plt.show()
                 data = 'd'
         
@@ -502,7 +474,7 @@ def share(G):
 # function to display program choices
 def options():
 
-    options = ['info(disregard in/out average meant for undirected graphs)', 'clear screen', 'density', 'dominance(immediate,frontier)', 'node degree', 'neighbors', 
+    options = ['info(disregard in/out average meant for undirected graphs)', 'clear screen', 'density', 'dominance(immediate)', 'node degree', 'neighbors', 'transitivity', 'degree assortativity',  
                'share(shared outgoing links)','in centrality', 'out centrality', 'closeness centrality', 'avg cluster',
                'pagerank(google original ranking algorithm)', 'hits(hubs and authorities ranking algorithm)', 'draw']
     
@@ -511,7 +483,55 @@ def options():
     for item in options:
         print(item)
 
+## quick 3d rendering of entire graph, nodes randomly placed, top hubs named and highlighted in blue
+def plot3d(G):
 
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    node_xyz = {}
+    top_node = []
+
+    degree = nx.degree(G)
+    top_degree = sorted( ((v,k) for k,v in degree), reverse=True)
+    for i in range(10):
+        top_node.append(str(top_degree[i]))
+
+    for node in G.nodes():  
+        x = random.randint(-10000, 10000)
+        y = random.randint(-10000, 10000)
+        z = random.randint(-10000, 10000)
+        node_xyz.update({ node : [x,y,z]})
+        ax.scatter(x, y, z, c= 'r', marker = 'o', alpha=0.5)
+        for item in top_node:
+            if node in item:
+                ax.scatter(x, y, z, c= 'b', marker = 'o')
+                ax.text(x, y, z, node, color='b', weight='bold')
+                top_node.remove(item)
+            
+        for item in nx.all_neighbors(G,node):
+            if item in node_xyz.keys():
+                x2 = node_xyz.get(item)[0]
+                y2 = node_xyz.get(item)[1]
+                z2 = node_xyz.get(item)[2]
+                ax.plot( [x,x2], [y,y2], [z,z2], c = 'black', alpha=0.1)
+
+            else:
+                x2 = x + random.randint(-500,500)
+                y2 = y + random.randint(-500,500)
+                z2 = z + random.randint(-500,500)
+                ax.scatter(x2, y2, z2, c = 'r', marker = 'o', alpha=0.5)
+                node_xyz.update({ item : [x,y,z]})
+                ax.plot( [x,x2], [y,y2], [z,z2], c = 'black', alpha=0.1)
+
+    plt.axis('off')
+    wm = plt.get_current_fig_manager()
+    wm.window.state('normal')
+    wm.resize(*wm.window.maxsize())
+    plt.autoscale()
+    plt.show()
+
+    
 def main(): 
 
     rows = get_data()
@@ -539,6 +559,13 @@ def main():
             sys.stderr.write("\x1b[2J\x1b[H")
             print("\n")
             print('-----------------------------------------------------------------------------')
+        
+        elif answer == "transitivity":
+            print("graph transitivity(fraction of all possible triangles present in graph)")
+            print(nx.transitivity(G))
+            print("\n")
+            print('-----------------------------------------------------------------------------')
+
         
         elif answer == "density":
             print("graph density")
@@ -577,8 +604,7 @@ def main():
             print('-----------------------------------------------------------------------------')
         
         elif answer == "draw":
-            nx.draw(G, with_labels=False)
-            plt.show()
+            plot3d(G)
             print('\n')
             print('-----------------------------------------------------------------------------')
         
@@ -603,6 +629,12 @@ def main():
             print("\n")
             print('-----------------------------------------------------------------------------')
         
+        elif answer == "degree assortativity":
+            print("The degree assortativity")
+            print(nx.degree_assortativity_coefficient(G))
+            print("\n")
+            print('-----------------------------------------------------------------------------')
+                
         elif answer == "quit":
             break;
         

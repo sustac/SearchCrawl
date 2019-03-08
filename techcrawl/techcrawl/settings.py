@@ -21,7 +21,7 @@ NEWSPIDER_MODULE = 'techcrawl.spiders'
 MONGODB_SERVER = 'localhost'
 MONGODB_PORT = 27017
 MONGODB_DB = 'index'
-MONGODB_COLLECTION = 'test'
+MONGODB_COLLECTION = 'newtest'
 ITEM_PIPELINES = {'techcrawl.pipelines.TechcrawlPipeline': 300,}
 
 
