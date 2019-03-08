@@ -2,6 +2,7 @@ import scrapy
 import csv
 import re
 import os
+from urllib.request import urlopen, URLError
 from urllib.parse import urlparse
 from techcrawl.items import TechcrawlItem
 from scrapy.linkextractors import LinkExtractor
@@ -11,6 +12,13 @@ x = 0
 file_csv = ''
 depth = 0
 duplicate = []
+
+def url_check(url):
+    try:
+        urlopen(url)
+        return True
+    except URLError:
+        return False
 
 class HackCrawlSpider(scrapy.Spider):
     global stop
@@ -29,7 +37,13 @@ class HackCrawlSpider(scrapy.Spider):
             url = 'done'
             print('\n')
         else:
-            seed_urls.append(url)
+            if url_check(url) == False:
+                print('\n')
+                print("can't open {} please check for errors." .format(url))
+
+            if url_check(url) == True:
+                seed_urls.append(url)
+        
         print("\n")
     
     files = [f for f in os.listdir(os.curdir) if os.path.isfile(f)]
@@ -50,10 +64,11 @@ class HackCrawlSpider(scrapy.Spider):
         global x
         global file_csv
         global duplicate
+        trap = 0
         links = []
         webdata = []
         url_list = []
-        
+        traps = ['wikipedia', 'wikimedia', 'stackexchange', 'stackoverflow', 'tumblr']        
 
         if response.xpath('//a/@href').extract() is not None:
             for link in response.xpath('//a/@href').extract():
@@ -69,13 +84,11 @@ class HackCrawlSpider(scrapy.Spider):
                     #limit crawl and only add link once
                     if (x < depth):
                         if(link not in links):
-                            if 'wikipedia' in link:
-                                break
-                            elif 'stackexchange' in link:
-                                break
-                            elif 'tumblr' in link:
-                                break
-                            else:
+                            for item in traps:
+                                if item in link:
+                                    trap = 1
+                            
+                            if trap == 0:
                                 links.append(link)
                     
                     #will only write url to collection once
